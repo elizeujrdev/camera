@@ -3,135 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulated Smartphone Camera</title>
+    <title>Camera Form</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #000;
-        }
-
-        .camera {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            height: 100%;
-            max-height: 600px;
-            border: 1px solid #fff;
-            border-radius: 16px;
-            overflow: hidden;
-            background-color: #000;
-        }
-
-        .camera-screen {
-            width: 100%;
-            height: calc(100% - 60px);
-            background: #333;
-            position: relative;
-        }
-
-        .camera-screen video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .camera-controls {
-            height: 60px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #222;
-        }
-
-        .camera-button {
-            background-color: #fff;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        #photo {
+        #cameraSection {
             display: none;
-            width: 100%;
-            height: auto;
-            margin-top: 10px;
-            border-radius: 16px;
         }
     </style>
 </head>
 <body>
-    <div class="camera">
-        <div class="camera-screen">
-            <video id="video" autoplay playsinline></video>
-        </div>
-        <div class="camera-controls">
-            <button id="snap" class="camera-button">📸</button>
-            <input type="file" id="imageUpload" accept="image/*" capture="environment" style="display:none;">
-            <canvas id="canvas" style="display:none;"></canvas>
-            <img id="photo" alt="Captured photo">
-        </div>
-    </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            const video = $('#video')[0];
-            const canvas = $('#canvas')[0];
-            const context = canvas.getContext('2d');
-            const photo = $('#photo');
-            const imageUpload = $('#imageUpload');
+<!-- Formulário de entrada -->
+<div id="formSection">
+    <h2>Preencha suas informações</h2>
+    <form id="infoForm">
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" required>
+        <br><br>
+        <label for="age">Idade:</label>
+        <input type="number" id="age" name="age" required>
+        <br><br>
+        <button type="submit">Enviar</button>
+    </form>
+</div>
 
-            // Solicitar permissão para usar a câmera
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-            .then(function(stream) {
-                video.srcObject = stream;
-            }).catch(function(err) {
-                console.log("Erro ao acessar a câmera: " + err);
-            });
+<!-- Seção de câmera -->
+<div id="cameraSection">
+    <h2>Agora, você pode tirar uma foto</h2>
+    <button id="takePhotoButton">Tirar Foto</button>
+    <input type="file" accept="image/*" capture="camera" id="cameraInput" style="display:none;">
+</div>
 
-            // Capturar foto
-            $('#snap').click(function() {
-                const width = video.videoWidth;
-                const height = video.videoHeight;
+<script>
+    document.getElementById('infoForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Evita o envio do formulário
 
-                canvas.width = width;
-                canvas.height = height;
-                context.drawImage(video, 0, 0, width, height);
+        // Pega os valores do formulário
+        const name = document.getElementById('name').value;
+        const age = document.getElementById('age').value;
 
-                const dataURL = canvas.toDataURL('image/png');
-                photo.attr('src', dataURL);
-                photo.show();
+        // Verifica se os campos estão preenchidos
+        if (name && age) {
+            // Oculta o formulário e mostra a seção da câmera
+            document.getElementById('formSection').style.display = 'none';
+            document.getElementById('cameraSection').style.display = 'block';
 
-                // Carregar a imagem no input file
-                const blob = dataURItoBlob(dataURL);
-                const file = new File([blob], "captured.png", { type: "image/png" });
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                imageUpload[0].files = dataTransfer.files;
-            });
+            // Simula um clique no botão "Tirar Foto"
+            const takePhotoButton = document.getElementById("takePhotoButton");
+            takePhotoButton.click();
+        } else {
+            alert('Por favor, preencha todos os campos.');
+        }
+    });
 
-            // Converter DataURL para Blob
-            function dataURItoBlob(dataURI) {
-                const byteString = atob(dataURI.split(',')[1]);
-                const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-                const ab = new ArrayBuffer(byteString.length);
-                const ia = new Uint8Array(ab);
-                for (let i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
-                }
-                return new Blob([ab], { type: mimeString });
-            }
-        });
-    </script>
+    document.getElementById('takePhotoButton').addEventListener('click', function() {
+        // Dispara o clique no input file
+        const cameraInput = document.getElementById("cameraInput");
+        cameraInput.click();
+    });
+</script>
+
 </body>
 </html>
