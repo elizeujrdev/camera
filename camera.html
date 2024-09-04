@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capture Photo with QuaggaJS</title>
+    <title>Camera Form</title>
     <style>
         #cameraSection {
             display: none;
         }
-        #camera {
-            width: 100%;
+        #photoPreview {
+            display: block;
+            margin-top: 20px;
+            max-width: 100%;
             height: auto;
-            border: 1px solid #000;
         }
     </style>
 </head>
@@ -34,13 +35,11 @@
 <!-- Seção de câmera -->
 <div id="cameraSection">
     <h2>Agora, você pode tirar uma foto</h2>
-    <video id="camera" autoplay></video>
     <button id="takePhotoButton">Tirar Foto</button>
-    <canvas id="photoCanvas" style="display:none;"></canvas>
+    <input type="file" accept="image/*" capture="camera" id="cameraInput" style="display:none;">
     <img id="photoPreview" alt="Sua foto aparecerá aqui" style="display:none;">
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 <script>
     document.getElementById('infoForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Evita o envio do formulário
@@ -55,40 +54,29 @@
             document.getElementById('formSection').style.display = 'none';
             document.getElementById('cameraSection').style.display = 'block';
 
-            // Inicia a captura de vídeo
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function(stream) {
-                    const video = document.getElementById('camera');
-                    video.srcObject = stream;
-                    video.play();
-                })
-                .catch(function(err) {
-                    console.error("Erro ao acessar a câmera: ", err);
-                });
+            // Simula um clique no botão "Tirar Foto"
+            const takePhotoButton = document.getElementById("takePhotoButton");
+            takePhotoButton.click();
         } else {
             alert('Por favor, preencha todos os campos.');
         }
     });
 
     document.getElementById('takePhotoButton').addEventListener('click', function() {
-        const video = document.getElementById('camera');
-        const canvas = document.getElementById('photoCanvas');
-        const context = canvas.getContext('2d');
-        const photoPreview = document.getElementById('photoPreview');
+        // Dispara o clique no input file
+        const cameraInput = document.getElementById("cameraInput");
+        cameraInput.click();
+    });
 
-        // Define as dimensões do canvas com base nas dimensões do vídeo
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        // Desenha a imagem do vídeo no canvas
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Converte a imagem do canvas para uma URL de dados e exibe a imagem
-        photoPreview.src = canvas.toDataURL('image/png');
-        photoPreview.style.display = 'block';
-
-        // Opcional: parar a transmissão de vídeo
-        video.srcObject.getTracks().forEach(track => track.stop());
+    document.getElementById('cameraInput').addEventListener('change', function(event) {
+        // Obtém o arquivo selecionado
+        const file = event.target.files[0];
+        if (file) {
+            // Cria um URL de objeto para o arquivo e define como src da imagem
+            const photoPreview = document.getElementById('photoPreview');
+            photoPreview.src = URL.createObjectURL(file);
+            photoPreview.style.display = 'block';
+        }
     });
 </script>
 
