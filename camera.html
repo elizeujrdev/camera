@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Form</title>
+    <title>Capture Photo with QuaggaJS</title>
     <style>
         #cameraSection {
             display: none;
+        }
+        #camera {
+            width: 100%;
+            height: auto;
+            border: 1px solid #000;
         }
     </style>
 </head>
@@ -29,10 +34,13 @@
 <!-- Seção de câmera -->
 <div id="cameraSection">
     <h2>Agora, você pode tirar uma foto</h2>
+    <video id="camera" autoplay></video>
     <button id="takePhotoButton">Tirar Foto</button>
-    <input type="file" accept="image/*" capture="camera" id="cameraInput" style="display:none;">
+    <canvas id="photoCanvas" style="display:none;"></canvas>
+    <img id="photoPreview" alt="Sua foto aparecerá aqui" style="display:none;">
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 <script>
     document.getElementById('infoForm').addEventListener('submit', function(event) {
         event.preventDefault(); // Evita o envio do formulário
@@ -47,18 +55,40 @@
             document.getElementById('formSection').style.display = 'none';
             document.getElementById('cameraSection').style.display = 'block';
 
-            // Simula um clique no botão "Tirar Foto"
-            const takePhotoButton = document.getElementById("takePhotoButton");
-            takePhotoButton.click();
+            // Inicia a captura de vídeo
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    const video = document.getElementById('camera');
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(err) {
+                    console.error("Erro ao acessar a câmera: ", err);
+                });
         } else {
             alert('Por favor, preencha todos os campos.');
         }
     });
 
     document.getElementById('takePhotoButton').addEventListener('click', function() {
-        // Dispara o clique no input file
-        const cameraInput = document.getElementById("cameraInput");
-        cameraInput.click();
+        const video = document.getElementById('camera');
+        const canvas = document.getElementById('photoCanvas');
+        const context = canvas.getContext('2d');
+        const photoPreview = document.getElementById('photoPreview');
+
+        // Define as dimensões do canvas com base nas dimensões do vídeo
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Desenha a imagem do vídeo no canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Converte a imagem do canvas para uma URL de dados e exibe a imagem
+        photoPreview.src = canvas.toDataURL('image/png');
+        photoPreview.style.display = 'block';
+
+        // Opcional: parar a transmissão de vídeo
+        video.srcObject.getTracks().forEach(track => track.stop());
     });
 </script>
 
