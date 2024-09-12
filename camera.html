@@ -8,11 +8,16 @@
         #cameraSection {
             display: none;
         }
-        #photoPreview {
+        #photoPreview, #pdfPreview {
             display: block;
             margin-top: 20px;
             max-width: 100%;
-            height: auto;
+            height: 500px;
+        }
+        iframe {
+            width: 80%;
+            height: 500px;
+            display: none;
         }
     </style>
 </head>
@@ -34,10 +39,11 @@
 
 <!-- Seção de câmera -->
 <div id="cameraSection">
-    <h2>Agora, você pode tirar uma foto</h2>
+    <h2>Agora, você pode tirar uma foto ou carregar um PDF</h2>
     <button id="takePhotoButton">Tirar Foto</button>
-    <input type="file" accept="image/*" capture="camera" id="cameraInput" style="display:none;">
+    <input type="file" accept="image/*,.pdf" id="cameraInput" style="display:none;">
     <img id="photoPreview" alt="Sua foto aparecerá aqui" style="display:none;">
+    <iframe id="pdfPreview"></iframe>
 </div>
 
 <script>
@@ -72,10 +78,20 @@
         // Obtém o arquivo selecionado
         const file = event.target.files[0];
         if (file) {
-            // Cria um URL de objeto para o arquivo e define como src da imagem
-            const photoPreview = document.getElementById('photoPreview');
-            photoPreview.src = URL.createObjectURL(file);
-            photoPreview.style.display = 'block';
+            const fileType = file.type;
+
+            // Se o arquivo for PDF, exibe no iframe
+            if (fileType === "application/pdf") {
+                const pdfPreview = document.getElementById('pdfPreview');
+                pdfPreview.src = URL.createObjectURL(file);
+                pdfPreview.style.display = 'block';
+                document.getElementById('photoPreview').style.display = 'none'; // Esconde a imagem, se houver
+            } else if (fileType.startsWith('image/')) { // Verifica se o arquivo é uma imagem
+                const photoPreview = document.getElementById('photoPreview');
+                photoPreview.src = URL.createObjectURL(file);
+                photoPreview.style.display = 'block';
+                document.getElementById('pdfPreview').style.display = 'none'; // Esconde o iframe, se houver
+            }
         }
     });
 </script>
