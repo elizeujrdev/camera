@@ -83,7 +83,7 @@
             // Se o arquivo for PDF, exibe no iframe
             if (fileType === "application/pdf") {
                 const pdfPreview = document.getElementById('pdfPreview');
-                pdfPreview.src = URL.createObjectURL(file);
+                pdfPreview.src = URL.createObjectURL(file) + "#zoom=page-width";
                 pdfPreview.style.display = 'block';
                 document.getElementById('photoPreview').style.display = 'none'; // Esconde a imagem, se houver
             } else if (fileType.startsWith('image/')) { // Verifica se o arquivo é uma imagem
